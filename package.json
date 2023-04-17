@@ -1,0 +1,22 @@
+{
+  "name": "proomptr",
+  "version": "1.0.0",
+  "description": "A lightweight, customizable AI assitant available at the press of a key.",
+  "main": "src/main.js",
+  "author": "John Flanagan",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^24.0.0",
+    "electron-acrylic-window": "^0.5.11",
+    "electron-store": "^8.1.0",
+    "openai": "^3.2.1"
+  },
+  "scripts": {
+    "start": "electron .",
+    "startDebug": "electron . --enable-logging",
+    "build": "npx electron-packager . Proomptr --platform=win32 --arch=x64 --icon=assets/Freepik-pin-icon.ico --overwrite"
+  },
+  "devDependencies": {
+    "electron-packager": "^17.1.1"
+  }
+}

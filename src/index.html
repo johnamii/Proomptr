@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" class="doc">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="index.css">
+    </head>
+    <body class="body">
+        <div class="wrapper">
+            <div id="prompt-form" class="input-container">
+                <button class="reset-button", id="reset-button">
+                    <img class="reset-icon" src="../assets/reset-icon.png" alt="Clear Convo"/>
+                </button>
+                <img src="../assets/loading-circle.svg" class="loading-circle" id="loading-circle" alt="Loading..."/>
+                <input id="prompt-input" class="input" type="text" placeholder="Enter Prompt"/>
+                <button id="submit-button" class="submit-button" type="submit" value="Submit">
+                    <img src="../assets/chevron-right.png" class="chevron" alt="Submit"/>
+                </button> 
+            </div>
+    
+            <div class="convo-container" id="convo-container">
+                <button class="convo-scroller" id="convo-scroller-up">
+                    <img src="../assets/chevron-up.png" class="chevron-vertical" alt="scroll up"/>
+                </button>
+                <div class="dialogue-wrapper" id="dialogue-wrapper">
+                    <div class="prompt-textbox" id="prompt-textbox"></div>
+                    <div class="response-textbox" id="response-textbox"></div>
+                </div>
+    
+                <button class="convo-scroller" id="convo-scroller-down">
+                    <img src="../assets/chevron-down.png" class="chevron-vertical" alt="scroll down"/>
+                </button>
+            </div>
+        </div>
+        
+        <script src="./renderer.js"></script>
+    </body>
+</html>

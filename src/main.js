@@ -16,14 +16,21 @@ const store = new Store({
       max_tokens: 500,
       stream: true,
     },
+    system_messages: [
+      "You are a friendly assistant.", 
+      "Format your messages in HTML, using only <br> or <p>",
+      ''
+    ],
     toggleWindowKey: 'Control+Space',
     toggleConvoKey: 'Alt',
   }
 });
+var toggleWindowKey = store.get("toggleWindowKey");
 
 const defaultConvo = [
-  { role:"system", content: "You are a friendly assistant." },
-  { role:"system", content: "Format your messages in HTML, using only <br> or <p>"},
+  { role:"system", content: store.get("system_messages")[0] },
+  { role:"system", content: store.get("system_messages")[1]},
+  { role:"system", content: store.get("system_messages")[2]},
 ];
 
 var dynamicConvo = defaultConvo.slice();
@@ -87,7 +94,7 @@ function createWindow() {
     mainWindow.setSize(arg[0], arg[1]);
     //console.log(arg[1])
 
-    if ( arg[1] > 300 || Math.abs(h1-arg[1]) > 100 ) {
+    if ( arg[1] > 300 || Math.abs(h1-arg[1]) > 150 ) {
       mainWindow.center();
     }
   });
@@ -95,7 +102,39 @@ function createWindow() {
   ipcMain.on('reset-convo', (event, arg) => {
     console.log("Cleaning up conversation")
     dynamicConvo = defaultConvo.slice();
-  })
+  });
+
+  ipcMain.handle('request-options', (event, key) => {
+    // return specific data if key specified, else return all data
+    var userSettings = key ? store.get(key) : {
+      completionOptions: store.get('completionOptions'),
+      system_messages: store.get('system_messages'),
+      toggleWindowKey: store.get('toggleWindowKey'),
+      toggleConvoKey: store.get('toggleConvoKey')
+    }
+    
+    return userSettings;
+  });
+
+  ipcMain.on('set-options', (event, settings) => {
+    console.log("Saving options")
+    store.set("completionOptions", settings.completionOptions);
+    store.set('system_messages', settings.system_messages);
+    store.set('toggleWindowKey', settings.toggleWindowKey);
+    store.set('toggleConvoKey', settings.toggleConvoKey);
+
+    toggleWindowKey = settings.toggleWindowKey;
+    registerHotkey();
+    defaultConvo[0].content = settings.system_messages[0];
+    defaultConvo[1].content = settings.system_messages[1];
+    defaultConvo[2].content = settings.system_messages[2];
+    dynamicConvo = defaultConvo.slice();
+  });
+
+  ipcMain.on('shutdown', () => {
+    console.log("Shutting app down.")
+    app.quit();
+  });
 
   mainWindow.loadFile('./src/index.html');
 }
@@ -116,6 +155,7 @@ async function getAPIResponse(prompt, options, target) {
     } else {
       console.log(error.message);
     }
+    target.send('update-div', error.message, false);
   });
 
   dynamicConvo.push({"role": "assistant", "content": message});
@@ -154,19 +194,19 @@ async function getStreamedAPIResponse(prompt, options, target){
     });
   } catch {
     console.log("Something went wrong.");
+    target.send('update-div', "Error with OpenAI response, please check model, API Key, or ORG ID")
   }
 }
 
 // Register a hotkey that can trigger a function when pressed
 function registerHotkey() {
   // Use Ctrl+Space as an example
-  const toggleWindowKey = store.get("toggleWindowKey");
+  
   const ret = globalShortcut.register(toggleWindowKey, () => {;
     // Toggle the window visibility
     setTimeout(() => {
       toggleWindow();
     }, 100);
-    
   });
 
   if (!ret) {
@@ -207,6 +247,9 @@ function toggleWindow() {
       // Show the window if it is hidden
       console.log("Proomptr window showing.")
       mainWindow.show();
+      setTimeout(() => {
+        mainWindow.focus();
+      }, 100)
     }
   }
 }

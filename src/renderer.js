@@ -1,5 +1,5 @@
 const docElement = document.documentElement;
-const form = document.getElementById('prompt-form');
+const form = document.getElementById('input-container');
 const resetConvoButton = document.getElementById('reset-button'); 
 const input = document.getElementById('prompt-input');
 const submitButton = document.getElementById('submit-button')
@@ -10,7 +10,19 @@ const responseTextbox = document.getElementById("response-textbox");
 const convoScrollerUp = document.getElementById("convo-scroller-up");
 const convoScrollerDown = document.getElementById("convo-scroller-down");
 const loadingCircle = document.getElementById("loading-circle");
+const optionsButton = document.getElementById("options-button");
+const shutdownButton = document.getElementById("shutdown-button")
+const promptContainer = document.getElementById("prompt-container");
+const optionsMenu = document.getElementById('options-menu');
+//is there a better way than to declare a bunch of consts?
 resetConvoButton.style.opacity = '0.3';
+var toggleConvoKey = 'Alt';
+
+async function initSettings(){
+    toggleConvoKey = await window.electronAPI.requestOptions('toggleConvoKey');
+    console.log("Toggle convo with " + toggleConvoKey)
+}
+initSettings();
 
 input.focus();
 
@@ -23,7 +35,7 @@ function flipContainers(){
     flipper = !flipper;
 
     if (!flipper) {
-        console.log("Viewing Convo. Index = ", convoIndex);
+        //console.log("Viewing Convo. Index = ", convoIndex);
         convoScrollerUp.style.opacity = convoIndex == 0 ? "0.25" : "1";
         convoScrollerDown.style.opacity = (convoIndex == convoText.length - 1) ? "0.25" : "1";
     }
@@ -34,8 +46,60 @@ function flipContainers(){
     flipper && input.focus();
 }
 
+var optionsOpen = false;
+async function flipOptionsMenu(){
+    console.log("Toggling options menu");
+    optionsOpen = !optionsOpen;
+
+    if (optionsOpen) {
+        const data = await window.electronAPI.requestOptions();
+        let textInputs = form.getElementsByClassName('options-text-input');
+        let boolInput = form.getElementsByClassName('options-bool-input');
+        textInputs[0].value = data.completionOptions.model ?? '';
+        textInputs[1].value = data.completionOptions.max_tokens ?? '';
+        boolInput[0].checked = data.completionOptions.stream ?? true;
+        textInputs[2].value = data.system_messages[0] ?? '';
+        textInputs[3].value = data.system_messages[1] ?? '';
+        textInputs[4].value = data.system_messages[2] ?? '';
+        textInputs[5].value = data.toggleWindowKey ?? '';
+        textInputs[6].value = data.toggleConvoKey ?? '';
+    }
+    
+    optionsMenu.style.display = optionsOpen ? 'flex' : 'none';
+    promptContainer.style.display = optionsOpen ? 'none' : 'flex';
+    shutdownButton.style.display = optionsOpen ? 'flex' : 'none';
+}
+
+optionsMenu.addEventListener('submit', (event) => {
+    //var formData = new FormData(event.target)
+    let elements = event.target.elements;
+    
+    const newSettings = {
+        completionOptions: {
+            model: elements.item(0).value,
+            max_tokens: Number(elements.item(1).value),
+            stream: elements.item(2).checked
+        },
+        system_messages: [
+            elements.item(3).value,
+            elements.item(4).value,
+            elements.item(5).value
+        ],
+        toggleWindowKey: elements.item(6).value,
+        toggleConvoKey: elements.item(7).value
+    }
+
+    initSettings();
+
+    flipOptionsMenu();
+
+    window.electronAPI.setOptions(newSettings);
+})
+
 function submitPrompt(){
     let prompt = input.value; // get the value of the input element
+
+    console.log("Submitting current prompt")
 
     form.style.opacity = 0.5;
     input.disabled = true;
@@ -142,6 +206,7 @@ resetConvoButton.addEventListener('click', (event) => {
     convoIndex = 0;
     promptTextbox.innerHTML = '';
     responseTextbox.innerHTML = '';
+    resetConvoButton.style.opacity = 0.3;
     window.electronAPI.resetConvo(true);
 })
 
@@ -150,7 +215,7 @@ document.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
         submitPrompt();
     }
-    if (event.key === "Alt" && convoText.length !== 0) {
+    if (event.key === toggleConvoKey && convoText.length !== 0) {
         flipContainers();
     }
     if (event.key === "ArrowDown" && !flipper && convoIndex < convoText.length - 1) {
@@ -159,6 +224,14 @@ document.addEventListener("keydown", (event) => {
     else if (event.key === "ArrowUp" && !flipper && convoIndex > 0) {
         scrollConvoUp();
     }
+});
+
+optionsButton.addEventListener('click', () => {
+    flipOptionsMenu();
+});
+
+shutdownButton.addEventListener('click', () => {
+    window.electronAPI.shutdown();
 });
 
 dialogueWrapper.addEventListener("mouseover", () => {

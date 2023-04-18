@@ -6,15 +6,72 @@
     </head>
     <body class="body">
         <div class="wrapper">
-            <div id="prompt-form" class="input-container">
-                <button class="reset-button", id="reset-button">
-                    <img class="reset-icon" src="../assets/reset-icon.png" alt="Clear Convo"/>
-                </button>
-                <img src="../assets/loading-circle.svg" class="loading-circle" id="loading-circle" alt="Loading..."/>
-                <input id="prompt-input" class="input" type="text" placeholder="Enter Prompt"/>
-                <button id="submit-button" class="submit-button" type="submit" value="Submit">
-                    <img src="../assets/chevron-right.png" class="chevron" alt="Submit"/>
-                </button> 
+            <div id="input-container" class="input-container">
+                <div class="prompt-container" id="prompt-container">
+                    <button class="reset-button", id="reset-button">
+                        <img class="reset-icon" src="../assets/reset-icon.png" alt="Clear Convo"/>
+                    </button>
+                    <img src="../assets/loading-circle.svg" class="loading-circle" id="loading-circle" alt="Loading..."/>
+                    <input id="prompt-input" class="input" type="text" placeholder="Enter Prompt"/>
+                    <button id="submit-button" class="submit-button" type="submit" value="Submit">
+                        <img src="../assets/chevron-right.png" class="chevron" alt="Submit"/>
+                    </button> 
+                </div>
+                <form class="options-menu" id="options-menu">
+                    <div class="options-item">
+                        <h3 class="options-header">Chat Model:</h3>
+                        <input type="text" placeholder="Default: gpt-3.5-turbo" class="options-text-input"/>
+                    </div>
+                    <div class="options-item">
+                        <h3 class="options-header">Max Tokens:</h3>
+                        <input type="number" placeholder="Default: 500" class="options-text-input"/>
+                    </div>
+                    <div class="options-item">
+                        <h3 class="options-header">Streamed Responses:</h3>
+                        <div style="width: 42%;">
+                            <input type="checkbox" class="options-bool-input"/>
+                        </div>
+                    </div>
+                    <div class="options-item">
+                        <h3 class="options-header">System Message 1:</h3>
+                        <div>
+                            <input type="text" placeholder="Default: You are a friendly assistant" class="options-text-input"/>
+                        </div>
+                    </div>
+                    <div class="options-item">
+                        <h3 class="options-header">System Message 2:</h3>
+                        <div>
+                            <input type="text" placeholder="Default: Format your response in HTML" class="options-text-input"/>
+                        </div>
+                    </div>
+                    <div class="options-item">
+                        <h3 class="options-header">System Message 3:</h3>
+                        <div>
+                            <input type="text" placeholder="Default: none" class="options-text-input"/>
+                        </div>
+                    </div>
+                    <div class="options-item">
+                        <h3 class="options-header">Toggle Window Keycode:</h3>
+                        <div>
+                            <input type="text" placeholder="Default: Control+Space" class="options-text-input"/>
+                        </div>
+                    </div>
+                    <div class="options-item">
+                        <h3 class="options-header">Toggle Conversation Keycode:</h3>
+                        <div>
+                            <input type="text" placeholder="Default: Alt" class="options-text-input"/>
+                        </div>
+                    </div>
+                    <button class="options-submit-button">Save</button>
+                </form>
+                <div style="display: flex; flex-direction: column; justify-content: space-around;">
+                    <button class="options-button" id="options-button">
+                        <img src="../assets/options.png" class="options-icon" id="options-icon"/>
+                    </button>
+                    <button class="shutdown-button" id="shutdown-button">
+                        <img src="../assets/shutdown.png" class="shutdown-icon" alt="Shut Down"/>
+                    </button>
+                </div>
             </div>
     
             <div class="convo-container" id="convo-container">

@@ -35,7 +35,9 @@ At the moment, it's not greatly formatted for large code outputs, at least witho
 * Press `Control+Space` to toggle the Proomptr window.
   * It will be available in the background even when hidden.
 * In window, press `Alt` to change between the prompt and response views.
-* Once you have multiple responses, press `ArrowUp` and `ArrowDown` to navigate your conversation history.
+* Once you have multiple responses, press `ArrowUp` and `ArrowDown` for two uses:
+  * On the prompt view, it will show the previous (up to) 3 responses in order for easy repetition/editing of prompts.
+  * On the conversation view, it will scroll through current / past messages in the conversation.
 * Hover over the response to see its correlating prompt.
 * Press the cleanup button on the prompt view to reset your conversation. For now, you cannot exceed 10 responses.
 

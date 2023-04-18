@@ -7,6 +7,7 @@ This is a lightweight electron application that allows you to have conversation 
 <table>   
   <tr>     
     <td><img src="screenshots/prompt.png?raw=true" alt="Prompt" title="Prompt"></td>      
+    <td><img src="screenshots/options.png?raw=true" alt="Options" title="Options"></td>  
   </tr>
   <tr>
     <td><img src="screenshots/response.png?raw=true" alt="Response" title="Response"></td>
@@ -38,7 +39,20 @@ This is a lightweight electron application that allows you to have conversation 
 
 ## Customization
 
- * More coming soon, including a UI-based options menu.
- * For now you may find a `config.json` file in the user preferences directory (%appdata%/proomptr)
-  * There you may change the values:
-    * Max tokens, to limit the response length and quality
+ * There is now a built-in options menu that lets you customize the following:
+  * `model`: the name of whatever chat model you have access to. 
+    * Default is 'gpt-3.5-turbo'. View more at https://platform.openai.com/docs/models/overview
+  * `max_tokens`: the maximum number of tokens you want to allow each response. This will affect charge amounts to your OpenAI account.
+    * Default is 500, kind of an arbitrary number
+  * `stream`: this toggles streamed responses. If off, it will pause and return the whole response. On, it will show the response as it's being produced.
+    * Default is true
+  * `system_messages(1-3)`: these are messages passed to the chat system that will tailor the way the model responds to your prompts.
+    * Defaults are: "You are a friendly assistant.", "Format your messages in HTML, using only </br/> or </p/>"
+    * It's recommended to keep one telling it to format for html. More formatting updates coming soon.
+  * `toggleWindowKey`: the keybind that will make your window appear/disappear over other apps. Format it to these guidelines of keyboardEvent.key (js)
+    * Default is "Control+Space"
+  * `toggleConvoKey`: the keybind that switches between the view for your prompts vs. responses.
+    * Default is "Alt"
+    
+ **Alternatively, you may view/edit these values in the `config.json` file in the user preferences directory (%appdata%/proomptr)**
+  

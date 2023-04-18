@@ -1,7 +1,7 @@
 # Proomptr
 Your favorite new tool to send proompts to your AI overlords.
 
-This is a lightweight electron application that allows you to have conversation with OpenAI's GPT models without breaking your workflow. On a keypress, a window will appear, ready for your input and will give a rapid response -- all in a minimalistic and user-friendly way.
+This is a lightweight electron application that allows you to have conversation with OpenAI's GPT models without breaking your workflow. On a keypress, a window will appear over whatever app you're useing, ready for your input and will give a rapid response -- all in a minimalistic and user-friendly way.
 
 ### Screenshots
 <table>   

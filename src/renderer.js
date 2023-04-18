@@ -29,6 +29,9 @@ input.focus();
 var convoText = [];
 var convoIndex = 0;
 
+var pastPrompts = [];
+var pastPromptIndex = -1;
+
 var flipper = true;
 function flipContainers(){
     console.log("Flipping view");
@@ -38,6 +41,9 @@ function flipContainers(){
         //console.log("Viewing Convo. Index = ", convoIndex);
         convoScrollerUp.style.opacity = convoIndex == 0 ? "0.25" : "1";
         convoScrollerDown.style.opacity = (convoIndex == convoText.length - 1) ? "0.25" : "1";
+    }
+    else {
+        resetConvoButton.style.opacity = convoText.length > 0 ? "1" : "0.3";
     }
 
     form.style.display = flipper ? "flex" : "none";
@@ -63,6 +69,9 @@ async function flipOptionsMenu(){
         textInputs[4].value = data.system_messages[2] ?? '';
         textInputs[5].value = data.toggleWindowKey ?? '';
         textInputs[6].value = data.toggleConvoKey ?? '';
+    }
+    else {
+        resetConvoButton.style.opacity = convoText.length > 0 ? "1" : "0.3";
     }
     
     optionsMenu.style.display = optionsOpen ? 'flex' : 'none';
@@ -118,6 +127,11 @@ function submitPrompt(){
         console.log("Conversation too long. Please reset.")
     }
     
+    if (pastPrompts.length === 3) {
+        pastPrompts.pop();
+    }
+    pastPrompts.unshift(prompt);
+    pastPromptIndex = -1;
     input.value = "";
 }
 
@@ -202,13 +216,15 @@ function scrollToEnd(){
 }
 
 resetConvoButton.addEventListener('click', (event) => {
-    convoText = [];
-    convoIndex = 0;
-    promptTextbox.innerHTML = '';
-    responseTextbox.innerHTML = '';
-    resetConvoButton.style.opacity = 0.3;
-    window.electronAPI.resetConvo(true);
-})
+    if (convoText.length > 0) {
+        convoText = [];
+        convoIndex = 0;
+        promptTextbox.innerHTML = '';
+        responseTextbox.innerHTML = '';
+        resetConvoButton.style.opacity = 0.3;
+        window.electronAPI.resetConvo(true);
+    }
+});
 
 document.addEventListener("keydown", (event) => {
 
@@ -218,11 +234,25 @@ document.addEventListener("keydown", (event) => {
     if (event.key === toggleConvoKey && convoText.length !== 0) {
         flipContainers();
     }
-    if (event.key === "ArrowDown" && !flipper && convoIndex < convoText.length - 1) {
-        scrollConvoDown();
+    if (event.key === "ArrowDown") {
+        if (!flipper && convoIndex < convoText.length - 1) {
+            scrollConvoDown();
+        }
+        else if (flipper && pastPromptIndex > -1) {
+            console.log("Showing newer prompt.");
+            pastPromptIndex--;
+            input.value = pastPromptIndex == -1 ? '' : pastPrompts[pastPromptIndex]
+        }
     }
-    else if (event.key === "ArrowUp" && !flipper && convoIndex > 0) {
-        scrollConvoUp();
+    else if (event.key === "ArrowUp") {
+        if (!flipper && convoIndex > 0) {
+            scrollConvoUp();
+        }
+        else if (flipper && pastPromptIndex < pastPrompts.length - 1) {
+            console.log("Showing older prompt.");
+            pastPromptIndex++;
+            input.value = pastPrompts[pastPromptIndex];
+        }
     }
 });
 

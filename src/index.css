@@ -174,7 +174,7 @@
 
 .prompt-textbox {
     width: fit-content;
-    max-width: 50%;
+    max-width: 75%;
     height: fit-content;
     border-top-right-radius: 10px;
     border-top-left-radius: 10px;
@@ -191,6 +191,7 @@
     max-width: 95%;
     max-height: 500px;
     overflow: hidden;
+    overflow-x: auto;
     padding: 10px;
     border-radius:10px; 
 }

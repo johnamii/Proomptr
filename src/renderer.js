@@ -147,7 +147,7 @@ function handleReception(value){
     console.log("Conversation expanded");
 
     convoText[convoText.length - 1].response = value;
-    responseTextbox.innerHTML = convoText[convoText.length - 1].response;
+    responseTextbox.mdContent = convoText[convoText.length - 1].response;
     scrollToEnd();
 
     flipContainers();
@@ -170,7 +170,7 @@ function handleStreamedReception(value){
     
     convoText[convoIndex].response = convoText[convoIndex].response.concat(value);
 
-    responseTextbox.innerHTML = convoText[convoIndex].response;
+    responseTextbox.mdContent = convoText[convoIndex].response;
 }
 
 
@@ -183,7 +183,7 @@ function scrollConvoUp(){
     console.log("Moving back in conversation");
     convoIndex--;
     promptTextbox.innerHTML = convoText[convoIndex].prompt;
-    responseTextbox.innerHTML = convoText[convoIndex].response;
+    responseTextbox.mdContent = convoText[convoIndex].response;
 
     dialogueWrapper.style.animation = 'slide-down 0.33s forwards';
     setTimeout(() => {
@@ -198,7 +198,7 @@ function scrollConvoDown(toEnd){
     console.log("Moving forward in conversation");
     convoIndex = convoIndex + 1;
     promptTextbox.innerHTML = convoText[convoIndex].prompt;
-    responseTextbox.innerHTML = convoText[convoIndex].response;
+    responseTextbox.mdContent = convoText[convoIndex].response;
 
     dialogueWrapper.style.animation = 'slide-up 0.33s forwards';
     setTimeout(() => {
@@ -212,7 +212,7 @@ function scrollConvoDown(toEnd){
 function scrollToEnd(){
     convoIndex = convoText.length - 1;
     promptTextbox.innerHTML = convoText[convoIndex].prompt;
-    responseTextbox.innerHTML = convoText[convoIndex].response;
+    responseTextbox.mdContent = convoText[convoIndex].response;
 }
 
 resetConvoButton.addEventListener('click', (event) => {
@@ -220,7 +220,7 @@ resetConvoButton.addEventListener('click', (event) => {
         convoText = [];
         convoIndex = 0;
         promptTextbox.innerHTML = '';
-        responseTextbox.innerHTML = '';
+        responseTextbox.mdContent = '';
         resetConvoButton.style.opacity = 0.3;
         window.electronAPI.resetConvo(true);
     }

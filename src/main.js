@@ -18,7 +18,7 @@ const store = new Store({
     },
     system_messages: [
       "You are a friendly assistant.", 
-      "Format your messages in HTML, using only <br> or <p>",
+      "Format your responses in Markdown.",
       ''
     ],
     toggleWindowKey: 'Control+Space',

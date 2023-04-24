@@ -13,8 +13,8 @@
   },
   "scripts": {
     "start": "electron .",
-    "startDebug": "electron . --enable-logging",
-    "build": "npx electron-packager . Proomptr --platform=win32 --arch=x64 --icon=assets/Freepik-pin-icon.ico --overwrite"
+    "debug": "electron . --enable-logging",
+    "build": "npx electron-packager . Proomptr --icon=assets/Freepik-pin-icon.ico --overwrite"
   },
   "devDependencies": {
     "electron-packager": "^17.1.1"

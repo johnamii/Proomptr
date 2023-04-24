@@ -1,8 +1,8 @@
 const { Configuration, OpenAIApi } = require('openai');
-const { app, globalShortcut, ipcMain } = require("electron");
-const { BrowserWindow } = require("electron-acrylic-window");
-const path = require('path');
+const { app, globalShortcut, ipcMain, BrowserWindow } = require("electron");
 const Store = require('electron-store');
+const path = require('path');
+const os = require('os')
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_ORG_ID = process.env.OPENAI_ORG_ID;
@@ -35,6 +35,14 @@ const defaultConvo = [
 
 var dynamicConvo = defaultConvo.slice();
 
+const vibOptions = {
+  theme: 'appearance-based',
+  effect: 'acrylic',
+  useCustomWindowRefreshMethod: true,
+  maximumRefreshRate: 60,
+  disableOnBlur: true
+}
+
 var mainWindow;
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -50,6 +58,15 @@ function createWindow() {
     resizable: true,
     movable: true,
   });
+
+  console.log("Platform:", os.platform())
+  if (os.platform() === 'win32') {
+    const { setVibrancy } = require("electron-acrylic-window");
+    setVibrancy(mainWindow, [vibOptions])
+  }
+  else {
+    setVibrancy('appearance-based')
+  }
 
   mainWindow.setAspectRatio(0);
 

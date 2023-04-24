@@ -65,7 +65,7 @@ function createWindow() {
     setVibrancy(mainWindow, [vibOptions])
   }
   else {
-    setVibrancy('appearance-based')
+    mainWindow.setVibrancy('light')
   }
 
   mainWindow.setAspectRatio(0);

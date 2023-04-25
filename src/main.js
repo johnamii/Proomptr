@@ -3,6 +3,7 @@ const { app, globalShortcut, ipcMain, BrowserWindow } = require("electron");
 const Store = require('electron-store');
 const path = require('path');
 const os = require('os')
+const platform = os.platform();
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_ORG_ID = process.env.OPENAI_ORG_ID;
@@ -57,24 +58,23 @@ function createWindow() {
     hasShadow: true,
     resizable: true,
     movable: true,
+    transparent: platform === 'darwin'
   });
 
-  console.log("Platform:", os.platform())
-  if (os.platform() === 'win32') {
-    const { setVibrancy } = require("electron-acrylic-window");
-    setVibrancy(mainWindow, [vibOptions])
+  console.log("Platform:", platform)
+  if (platform === 'darwin') {
+    mainWindow.setVibrancy('titlebar');
   }
-  else {
-    mainWindow.setVibrancy('light')
+  else if (platform === 'win32') {
+    const { setVibrancy } = require("electron-acrylic-window");
+    setVibrancy(mainWindow, [vibOptions]);
   }
 
   mainWindow.setAspectRatio(0);
 
   console.log("Initializing Proomptr");
-  
-  //mainWindow.hide(); // Hide the window by default 
 
-  // set listener for prompt, callback when triggered.
+  // listener awaits for prompt submission from window
   ipcMain.on('get-prompt', async (event, prompt) => {
 
     if (!openAIConfiguration.apiKey || !openAIConfiguration.organization) {
@@ -83,7 +83,7 @@ function createWindow() {
       return;
     }
 
-    // when a message is received from the renderer process
+    // filter out short prompts
     if (prompt.length > 10) {
       console.log("Received prompt");
 
@@ -106,21 +106,25 @@ function createWindow() {
     }
   });
 
+  // handle resize of the document
   ipcMain.on('window-resize', (event, arg) => {
     const h1 = mainWindow.getSize()[1];
     mainWindow.setSize(arg[0], arg[1]);
     //console.log(arg[1])
 
+    // center on screen if size too large or difference is large
     if ( arg[1] > 300 || Math.abs(h1-arg[1]) > 150 ) {
       mainWindow.center();
     }
   });
 
+  // clear conversation if reset button clicked
   ipcMain.on('reset-convo', (event, arg) => {
     console.log("Cleaning up conversation")
     dynamicConvo = defaultConvo.slice();
   });
 
+  // handle request for current application options, send them to window
   ipcMain.handle('request-options', (event, key) => {
     // return specific data if key specified, else return all data
     var userSettings = key ? store.get(key) : {
@@ -133,6 +137,7 @@ function createWindow() {
     return userSettings;
   });
 
+  // set new options received from window
   ipcMain.on('set-options', (event, settings) => {
     console.log("Saving options")
     store.set("completionOptions", settings.completionOptions);
@@ -148,6 +153,7 @@ function createWindow() {
     dynamicConvo = defaultConvo.slice();
   });
 
+  // close program
   ipcMain.on('shutdown', () => {
     console.log("Shutting app down.")
     app.quit();

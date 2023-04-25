@@ -17,10 +17,12 @@ At the moment, it's not greatly formatted for large code outputs, at least witho
   </tr>
 </table>
 
-## Setup
+# Setup
 
-* Define your OpenAI API Key and Organization ID as a local variables on your machine.
+* **Set your OpenAI API Key and Organization ID as a local variables on your machine.**
   * You must have an OpenAI account, set `OPENAI_API_KEY` and `OPENAI_ORG_ID` to their corresponding values.
+  * Look up the specifics for your system...
+  * In general, you will open your **CMD prompt or Terminal**, and set `OPENAI_API_KEY=<copy/paste your key>`, then do the same for `OPENAI_ORG_ID`
   * The API will not work with out this step. You must also have a payment method in order on your account (it's very cheap for personal use).
 * Clone this repository, open the project folder in the command line.
 * Install dependencies with `npm install`

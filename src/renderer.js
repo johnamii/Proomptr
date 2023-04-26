@@ -1,19 +1,22 @@
 const docElement = document.documentElement;
 const form = document.getElementById('input-container');
-const resetConvoButton = document.getElementById('reset-button'); 
 const input = document.getElementById('prompt-input');
-const submitButton = document.getElementById('submit-button')
 const convoContainer = document.getElementById("convo-container");
 const dialogueWrapper = document.getElementById("dialogue-wrapper");
 const promptTextbox = document.getElementById("prompt-textbox");
 const responseTextbox = document.getElementById("response-textbox");
-const convoScrollerUp = document.getElementById("convo-scroller-up");
-const convoScrollerDown = document.getElementById("convo-scroller-down");
 const loadingCircle = document.getElementById("loading-circle");
-const optionsButton = document.getElementById("options-button");
-const shutdownButton = document.getElementById("shutdown-button")
 const promptContainer = document.getElementById("prompt-container");
 const optionsMenu = document.getElementById('options-menu');
+
+const convoScrollerUp = document.getElementById("convo-scroller-up");
+const convoScrollerDown = document.getElementById("convo-scroller-down");
+const resetConvoButton = document.getElementById('reset-button'); 
+const submitButton = document.getElementById('submit-button');
+const optionsButton = document.getElementById("options-button");
+const optionsButtonIcon = optionsButton.querySelector('img');
+const shutdownButton = document.getElementById("shutdown-button");
+
 //is there a better way than to declare a bunch of consts?
 resetConvoButton.style.opacity = '0.3';
 var toggleConvoKey = 'Alt';
@@ -39,8 +42,8 @@ function flipContainers(){
 
     if (!flipper) {
         //console.log("Viewing Convo. Index = ", convoIndex);
-        convoScrollerUp.style.opacity = convoIndex == 0 ? "0.25" : "1";
-        convoScrollerDown.style.opacity = (convoIndex == convoText.length - 1) ? "0.25" : "1";
+        convoScrollerUp.style.opacity = convoIndex === 0 ? "0.25" : "1";
+        convoScrollerDown.style.opacity = (convoIndex === convoText.length - 1) ? "0.25" : "1";
     }
     else {
         resetConvoButton.style.opacity = convoText.length > 0 ? "1" : "0.3";
@@ -69,9 +72,12 @@ async function flipOptionsMenu(){
         textInputs[4].value = data.system_messages[2] ?? '';
         textInputs[5].value = data.toggleWindowKey ?? '';
         textInputs[6].value = data.toggleConvoKey ?? '';
+
+        optionsButtonIcon.src = '../assets/back.png'
     }
     else {
         resetConvoButton.style.opacity = convoText.length > 0 ? "1" : "0.3";
+        optionsButtonIcon.src = '../assets/options.png'
     }
     
     optionsMenu.style.display = optionsOpen ? 'flex' : 'none';
@@ -154,13 +160,13 @@ function handleReception(value){
 }
 
 function handleStreamedReception(value){
-    if (value == "[START]") {
+    if (value === "[START]") {
         console.log("Printing streamed response");
         scrollToEnd()
         flipContainers();
         return false;
     }
-    else if (value == "[DONE]") {
+    else if (value === "[DONE]") {
         console.log("Stream update finished");
         input.disabled = false;
         loadingCircle.style.display = 'none';
@@ -215,7 +221,7 @@ function scrollToEnd(){
     responseTextbox.mdContent = convoText[convoIndex].response;
 }
 
-resetConvoButton.addEventListener('click', (event) => {
+function resetConversation(){
     if (convoText.length > 0) {
         convoText = [];
         convoIndex = 0;
@@ -224,6 +230,10 @@ resetConvoButton.addEventListener('click', (event) => {
         resetConvoButton.style.opacity = 0.3;
         window.electronAPI.resetConvo(true);
     }
+}
+
+resetConvoButton.addEventListener('click', (event) => {
+    resetConversation();
 });
 
 document.addEventListener("keydown", (event) => {
@@ -234,6 +244,10 @@ document.addEventListener("keydown", (event) => {
     if (event.key === toggleConvoKey && convoText.length !== 0) {
         flipContainers();
     }
+    if (flipper && event.ctrlKey) {
+        event.key === 'o' && flipOptionsMenu();
+        event.key === 'q' && resetConversation();
+    }
     if (event.key === "ArrowDown") {
         if (!flipper && convoIndex < convoText.length - 1) {
             scrollConvoDown();
@@ -241,7 +255,7 @@ document.addEventListener("keydown", (event) => {
         else if (flipper && pastPromptIndex > -1) {
             console.log("Showing newer prompt.");
             pastPromptIndex--;
-            input.value = pastPromptIndex == -1 ? '' : pastPrompts[pastPromptIndex]
+            input.value = pastPromptIndex === -1 ? '' : pastPrompts[pastPromptIndex]
         }
     }
     else if (event.key === "ArrowUp") {
@@ -256,12 +270,24 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
+submitButton.addEventListener('click', () => {
+    submitPrompt();
+});
+
 optionsButton.addEventListener('click', () => {
     flipOptionsMenu();
 });
 
 shutdownButton.addEventListener('click', () => {
     window.electronAPI.shutdown();
+});
+
+convoScrollerUp.addEventListener('click', () => {
+    scrollConvoUp();
+});
+
+convoScrollerDown.addEventListener('click', () => {
+    scrollConvoDown();
 });
 
 dialogueWrapper.addEventListener("mouseover", () => {
@@ -272,8 +298,18 @@ dialogueWrapper.addEventListener("mouseout", () => {
     promptTextbox.style.display = "none";
 });
 
-const resizeObserver = new ResizeObserver((entries) => {
+let buttons = document.querySelectorAll("button");
+buttons.forEach(button => {
+    button.addEventListener("mouseover", () => {
+        button.classList.add('highlight');
+    });
 
+    button.addEventListener("mouseout", () => {
+        button.classList.remove('highlight');
+    });
+})
+
+const resizeObserver = new ResizeObserver((entries) => {
     window.electronAPI.resize([document.body.clientWidth, document.body.clientHeight]) 
     //console.log("Window height resized to " + document.body.clientHeight);
 });

@@ -71,8 +71,6 @@ code {
     background: none;
     border-radius: 5px;
     border: 1px solid #383d40;
-}:focus{
-    border: 1px solid lightskyblue;
 }
 
 .options-bool-input{
@@ -100,7 +98,7 @@ code {
     justify-content: space-evenly;
 }
 
-.input{
+.prompt-input{
     background: none;
     height: 95%;
     width: 90%;
@@ -111,7 +109,6 @@ code {
     padding: 15px;
 }:focus {
     outline: none;
-    border: none;
 }
 
 .convo-container{
@@ -133,7 +130,7 @@ code {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    
+
     margin: 10px;  
     position: relative;
 }

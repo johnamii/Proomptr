@@ -42,6 +42,7 @@ At the moment, it's not greatly formatted for large code outputs, at least witho
   * On the conversation view, it will scroll through current / past messages in the conversation.
 * Hover over the response to see its correlating prompt.
 * Press the cleanup button on the prompt view to reset your conversation. For now, you cannot exceed 10 responses.
+* Beyond pressing the buttons, you may press `Enter` to submit your prompt, `Ctrl+o` to toggle the options menu, and `Ctrl+q` to reset the conversation.
 
 ## Customization
 

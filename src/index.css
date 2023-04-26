@@ -131,32 +131,49 @@ code {
 .dialogue-wrapper {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
     margin: 10px;  
     position: relative;
 }
 
 .prompt-textbox {
     width: fit-content;
-    max-width: 75%;
     height: fit-content;
+    max-width: 90%;
+    margin-left: 5%;
+
+    background: #007AFF77;
+    color: #FFFFFFCC;
+    display: none;
+
     border-top-right-radius: 10px;
     border-top-left-radius: 10px;
-    margin-left: 15px;
-    padding: 5px;
-    
-    background: #007AFFBB;
-    color: #FFFFFFDD;
-    display: none;
+    padding: 10px;
+    padding-bottom: 5px;
 }
 
 .response-textbox {
-    background: rgba(0, 0, 0, 0.05);
     max-width: 95%;
     max-height: 500px;
     position: relative;
-    overflow: auto;
+
+    background: rgba(0, 0, 0, 0.05);
     padding: 10px;
     border-radius:10px; 
+    overflow: auto;
+    margin: none;
+
+}::-webkit-scrollbar {
+    width: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    border-top-right-radius:5px; 
+    border-bottom-right-radius:5px; 
+
+}::-webkit-scrollbar-thumb {
+    background: #383d40;
+    border-radius: 5px;
 }
 
 .convo-scroller{

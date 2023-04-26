@@ -92,6 +92,14 @@ function createWindow() {
         getAPIResponse(prompt, options, event.sender);
       }
     }
+    else if (prompt === 'longText') {
+      console.log("Testing with long response");
+      let longText = '';
+      for (let i = 0; i < 50; i++) {
+        longText += "hello   world   hello   world    hello world   hello   world   hello   world    <br />";
+      }
+      event.sender.send('update-div', longText, false);
+    }
     else {
       console.log("Prompt should be greater than 10 characters");
       event.sender.send('update-div', "Please enter a longer prompt.", false);

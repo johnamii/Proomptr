@@ -236,6 +236,17 @@ resetConvoButton.addEventListener('click', (event) => {
     resetConversation();
 });
 
+async function copyCurrentResponse() {
+    if (convoText.length > 0) {
+        try {
+            await navigator.clipboard.writeText(convoText[convoIndex].response);
+            console.log("Copied response to clipboard.");
+        } catch (err) {
+            console.log("Failed to copy: ", err);
+        }   
+    }
+}
+
 document.addEventListener("keydown", (event) => {
 
     if (event.key === "Enter") {
@@ -244,9 +255,14 @@ document.addEventListener("keydown", (event) => {
     if (event.key === toggleConvoKey && convoText.length !== 0) {
         flipContainers();
     }
-    if (flipper && event.ctrlKey) {
-        event.key === 'o' && flipOptionsMenu();
-        event.key === 'q' && resetConversation();
+    if (event.ctrlKey) {
+        if (flipper) {
+            event.key === 'o' && flipOptionsMenu();
+            event.key === 'q' && resetConversation();
+        }
+        else {
+            event.key === 'x' && copyCurrentResponse();
+        }
     }
     if (event.key === "ArrowDown") {
         if (!flipper && convoIndex < convoText.length - 1) {

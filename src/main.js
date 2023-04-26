@@ -1,14 +1,9 @@
-const { Configuration, OpenAIApi } = require('openai');
 const { app, globalShortcut, ipcMain, BrowserWindow } = require("electron");
 const Store = require('electron-store');
+const { checkConfig, getAPIResponse, getStreamedAPIResponse } = require('./openai')
 const path = require('path');
 const os = require('os')
 const platform = os.platform();
-
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_ORG_ID = process.env.OPENAI_ORG_ID;
-const openAIConfiguration = new Configuration({ organization: OPENAI_ORG_ID, apiKey: OPENAI_API_KEY });
-const openai = new OpenAIApi(openAIConfiguration);
 
 const store = new Store({
   defaults: {
@@ -26,17 +21,15 @@ const store = new Store({
     toggleConvoKey: 'Alt',
   }
 });
-var toggleWindowKey = store.get("toggleWindowKey");
 
-const defaultConvo = [
+const initialConvo = [
   { role:"system", content: store.get("system_messages")[0] },
   { role:"system", content: store.get("system_messages")[1]},
   { role:"system", content: store.get("system_messages")[2]},
 ];
+var dynamicConvo = initialConvo.slice();
 
-var dynamicConvo = defaultConvo.slice();
-
-const vibOptions = {
+const vibrancyOptions = {
   theme: 'appearance-based',
   effect: 'acrylic',
   useCustomWindowRefreshMethod: true,
@@ -67,7 +60,7 @@ function createWindow() {
   }
   else if (platform === 'win32') {
     const { setVibrancy } = require("electron-acrylic-window");
-    setVibrancy(mainWindow, [vibOptions]);
+    setVibrancy(mainWindow, [vibrancyOptions]);
   }
 
   mainWindow.setAspectRatio(0);
@@ -77,9 +70,9 @@ function createWindow() {
   // listener awaits for prompt submission from window
   ipcMain.on('get-prompt', async (event, prompt) => {
 
-    if (!openAIConfiguration.apiKey || !openAIConfiguration.organization) {
+    if (!checkConfig()) {
       console.error("Configuration error: API or Org");
-      event.sender.send('update-div', 'Improperly configured API key or ORG ID');
+      event.sender.send('update-div', 'Improperly configured API key or ORG ID. Both must be set as system variables, and your OpenAI account must have a payment method set up.');
       return;
     }
 
@@ -91,7 +84,6 @@ function createWindow() {
 
       let options = store.get('completionOptions');
       options.messages = dynamicConvo;
-
 
       if (options.stream === true) {
         getStreamedAPIResponse(prompt, options, event.sender);
@@ -121,7 +113,7 @@ function createWindow() {
   // clear conversation if reset button clicked
   ipcMain.on('reset-convo', (event, arg) => {
     console.log("Cleaning up conversation")
-    dynamicConvo = defaultConvo.slice();
+    dynamicConvo = initialConvo.slice();
   });
 
   // handle request for current application options, send them to window
@@ -132,7 +124,7 @@ function createWindow() {
       system_messages: store.get('system_messages'),
       toggleWindowKey: store.get('toggleWindowKey'),
       toggleConvoKey: store.get('toggleConvoKey')
-    }
+    };
     
     return userSettings;
   });
@@ -147,10 +139,10 @@ function createWindow() {
 
     toggleWindowKey = settings.toggleWindowKey;
     registerHotkey();
-    defaultConvo[0].content = settings.system_messages[0];
-    defaultConvo[1].content = settings.system_messages[1];
-    defaultConvo[2].content = settings.system_messages[2];
-    dynamicConvo = defaultConvo.slice();
+    initialConvo[0].content = settings.system_messages[0];
+    initialConvo[1].content = settings.system_messages[1];
+    initialConvo[2].content = settings.system_messages[2];
+    dynamicConvo = initialConvo.slice();
   });
 
   // close program
@@ -162,66 +154,8 @@ function createWindow() {
   mainWindow.loadFile('./src/index.html');
 }
 
-async function getAPIResponse(prompt, options, target) {
-
-  let message;
-
-  // Call the OpenAI API with the prompt
-  await openai.createChatCompletion(options)
-  .then((response) => {
-    message = response.data.choices[0].message.content;
-  })
-  .catch((error) => {
-    if (error.response) {
-      console.log(error.response.status);
-      console.log(error.response.data);
-    } else {
-      console.log(error.message);
-    }
-    target.send('update-div', error.message, false);
-  });
-
-  dynamicConvo.push({"role": "assistant", "content": message});
-  //console.log("Response: " + message)
-  target.send('update-div', message, false);
-}
-
-async function getStreamedAPIResponse(prompt, options, target){
-  try {
-    console.log("Awaiting response");
-    const res = await openai.createChatCompletion(options, {responseType: 'stream'});
-    var fullMessage = "";
-
-    target.send('update-div', '[START]', true);
-    res.data.on('data', data => {
-      const lines = data.toString().split('\n').filter(line => line.trim() !== '');
-      for (const line of lines) {
-        const message = line.replace(/^data: /, '');
-        if (message === '[DONE]') {
-          console.log("Response complete.",);
-          dynamicConvo.push({"role": "assistant", "content": fullMessage});
-          target.send('update-div', "[DONE]", true);
-          return; // Stream finished
-        }
-        try {
-          const parsed = JSON.parse(message);
-          let chunk = parsed.choices[0].delta.content;
-          if (chunk != undefined) {
-            fullMessage += chunk;
-            target.send('update-div', chunk, true);
-          }
-        } catch(error) {
-          console.error('Could not JSON parse stream message', message, error);
-        }
-      }
-    });
-  } catch {
-    console.log("Something went wrong.");
-    target.send('update-div', "Error with OpenAI response, please check model, API Key, or ORG ID")
-  }
-}
-
 // Register a hotkey that can trigger a function when pressed
+var toggleWindowKey = store.get("toggleWindowKey");
 function registerHotkey() {
   // Use Ctrl+Space as an example
   
@@ -256,7 +190,6 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
-
 
 // Toggle the window visibility
 function toggleWindow() {

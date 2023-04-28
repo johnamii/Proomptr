@@ -14,9 +14,9 @@
   "scripts": {
     "start": "electron .",
     "debug": "electron . --enable-logging",
-    "buildWin": "npx electron-packager . Proomptr --icon=assets/proomptr-logo.ico --overwrite",
-    "buildMac": "npx electron-packager . Proomptr --icon=assets/proomptr-logo.icns --overwrite",
-    "buildLin": "npx electron-packager . Proomptr --icon=assets/proomptr-logo.png --overwrite"
+    "buildWin": "npx electron-packager . Proomptr --icon=assets/logo.ico --overwrite",
+    "buildMac": "npx electron-packager . Proomptr --icon=assets/logo.icns --overwrite",
+    "buildLin": "npx electron-packager . Proomptr --icon=assets/logo.png --overwrite"
   },
   "devDependencies": {
     "electron-packager": "^17.1.1"

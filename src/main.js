@@ -43,7 +43,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 70,
-    icon: './assets/proomptr-logo.png',
+    icon: './assets/logo.png',
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js')

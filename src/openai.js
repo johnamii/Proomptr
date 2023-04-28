@@ -67,8 +67,30 @@ async function getStreamedAPIResponse(prompt, options, target){
     }
 }
 
+async function getAPIDrawing(prompt, options, target) {
+  console.log("Attempting to draw: ", prompt);
+
+  let image_url;
+  const response = await openai.createImage({
+    prompt: prompt,
+    n: 1,
+    size: '512x512'
+  }).catch(() => {
+    console.log("Image generation failed.");
+  });
+  image_url = response.data.data[0].url;
+  //console.log("Generated URL: ", image_url);
+  target.send('update-div', image_url, false, true);
+  return image_url;
+}
+
+async function getAPIDrawingVariation(prompt, options, target, basis) {
+
+}
+
 module.exports = {
     checkConfig,
     getAPIResponse,
-    getStreamedAPIResponse
+    getStreamedAPIResponse,
+    getAPIDrawing
 };

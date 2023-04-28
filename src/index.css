@@ -169,7 +169,8 @@ code {
     background: rgba(0, 0, 0, 0.05);
     padding: 10px;
     border-radius:10px; 
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     margin: none;
 
 }::-webkit-scrollbar {
@@ -181,6 +182,19 @@ code {
 }::-webkit-scrollbar-thumb {
     background: #383d40;
     border-radius: 5px;
+}
+
+.response-imagebox{
+    max-width: 95%;
+    max-height: 500px;
+    position: relative;
+
+    background: rgba(0, 0, 0, 0.05);
+    padding: 10px;
+    border-radius:10px; 
+
+    align-items: center;
+    justify-content: center;
 }
 
 .convo-scroller{

@@ -1,6 +1,6 @@
 const { app, globalShortcut, ipcMain, BrowserWindow } = require("electron");
 const Store = require('electron-store');
-const { checkConfig, getAPIResponse, getStreamedAPIResponse } = require('./openai')
+const { checkConfig, getAPIResponse, getStreamedAPIResponse, getAPIDrawing } = require('./openai')
 const path = require('path');
 const os = require('os')
 const platform = os.platform();
@@ -28,6 +28,7 @@ const initialConvo = [
   { role:"system", content: store.get("system_messages")[2]},
 ];
 var dynamicConvo = initialConvo.slice();
+var convoLength = 0;
 
 const vibrancyOptions = {
   theme: 'appearance-based',
@@ -42,7 +43,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 70,
-    icon: './assets/Freepik-pin-icon.ico',
+    icon: './assets/proomptr-logo.png',
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js')
@@ -73,6 +74,21 @@ function createWindow() {
     if (!checkConfig()) {
       console.error("Configuration error: API or Org");
       event.sender.send('update-div', 'Improperly configured API key or ORG ID. Both must be set as system variables, and your OpenAI account must have a payment method set up.');
+      return;
+    }
+
+    if (prompt.startsWith('/draw')) {
+      console.log("Submitting prompt to image generator.");
+      let drawingPrompt = prompt.substring(5);
+      getAPIDrawing(drawingPrompt, null, event.sender);
+      return;
+    }
+
+    convoLength++;
+
+    if (convoLength > 10) {
+      console.log("Conversation is too long. Please reset.");
+      event.sender.send('update-div', 'Conversation is too long. Please reset.');
       return;
     }
 
@@ -120,7 +136,8 @@ function createWindow() {
 
   // clear conversation if reset button clicked
   ipcMain.on('reset-convo', (event, arg) => {
-    console.log("Cleaning up conversation")
+    console.log("Cleaning up conversation");
+    convoLength = 0;
     dynamicConvo = initialConvo.slice();
   });
 

@@ -5,6 +5,7 @@ const convoContainer = document.getElementById("convo-container");
 const dialogueWrapper = document.getElementById("dialogue-wrapper");
 const promptTextbox = document.getElementById("prompt-textbox");
 const responseTextbox = document.getElementById("response-textbox");
+const responseImagebox = document.getElementById("response-imagebox");
 const loadingCircle = document.getElementById("loading-circle");
 const promptContainer = document.getElementById("prompt-container");
 const optionsMenu = document.getElementById('options-menu');
@@ -122,16 +123,11 @@ function submitPrompt(){
 
     resetConvoButton.style.opacity = '1';
     
-    if (convoText.length <= 10) {
-        window.electronAPI.send(prompt); // send the value to the main process
+    window.electronAPI.send(prompt); // send the value to the main process
 
-        convoText.push({prompt: prompt, response: ''});
-        convoIndex = convoText.length - 1;
-        promptTextbox.innerHTML = convoText[convoIndex].prompt;
-    }   
-    else {
-        console.log("Conversation too long. Please reset.")
-    }
+    convoText.push({prompt: prompt, response: '', image: false, url: ''});
+    convoIndex = convoText.length - 1;
+    promptTextbox.innerHTML = convoText[convoIndex].prompt; 
     
     if (pastPrompts.length === 3) {
         pastPrompts.pop();
@@ -153,7 +149,6 @@ function handleReception(value){
     console.log("Conversation expanded");
 
     convoText[convoText.length - 1].response = value;
-    responseTextbox.mdContent = convoText[convoText.length - 1].response;
     scrollToEnd();
 
     flipContainers();
@@ -175,21 +170,57 @@ function handleStreamedReception(value){
     }
     
     convoText[convoIndex].response = convoText[convoIndex].response.concat(value);
-
     responseTextbox.mdContent = convoText[convoIndex].response;
 }
 
+function handleImageReception(url){
+    console.log("Renderer receieved an image.");
 
-window.electronAPI.receive((event, value, stream) => {
-    stream ? handleStreamedReception(value) : handleReception(value);
-    //handleStreamedReception(value);
+    form.style.opacity = 1;
+    loadingCircle.style.display = 'none';
+    input.disabled = false;
+
+    convoText[convoText.length - 1].image = true;
+    convoText[convoText.length - 1].url = url;
+    var img_html = "<img src='" + url + "' alt='Failed to load image.' style='border-radius: 10px;'>"
+    convoText[convoText.length - 1].response = img_html;
+    
+    scrollToEnd();
+
+    flipContainers();
+}
+
+
+window.electronAPI.receive((event, value, stream, image) => {
+    if (image) {
+        handleImageReception(value);
+    }
+    else {
+        stream ? handleStreamedReception(value) : handleReception(value);
+    }
 });
+
+function fillContent() {
+    const val = convoText[convoIndex];
+
+    promptTextbox.innerHTML = val.prompt;
+    if (val.image) {
+        responseTextbox.style.display = 'none';
+        responseImagebox.style.display = 'flex';
+        responseImagebox.innerHTML = val.response;
+    }
+    else {
+        responseTextbox.style.display = 'flex';
+        responseImagebox.style.display = 'none';
+        responseTextbox.mdContent = val.response;
+    }
+}
 
 function scrollConvoUp(){
     console.log("Moving back in conversation");
     convoIndex--;
-    promptTextbox.innerHTML = convoText[convoIndex].prompt;
-    responseTextbox.mdContent = convoText[convoIndex].response;
+    
+    fillContent();
 
     dialogueWrapper.style.animation = 'slide-down 0.33s forwards';
     setTimeout(() => {
@@ -203,8 +234,8 @@ function scrollConvoUp(){
 function scrollConvoDown(toEnd){
     console.log("Moving forward in conversation");
     convoIndex = convoIndex + 1;
-    promptTextbox.innerHTML = convoText[convoIndex].prompt;
-    responseTextbox.mdContent = convoText[convoIndex].response;
+
+    fillContent();
 
     dialogueWrapper.style.animation = 'slide-up 0.33s forwards';
     setTimeout(() => {
@@ -217,8 +248,7 @@ function scrollConvoDown(toEnd){
 
 function scrollToEnd(){
     convoIndex = convoText.length - 1;
-    promptTextbox.innerHTML = convoText[convoIndex].prompt;
-    responseTextbox.mdContent = convoText[convoIndex].response;
+    fillContent();
 }
 
 function resetConversation(){
@@ -238,12 +268,20 @@ resetConvoButton.addEventListener('click', (event) => {
 
 async function copyCurrentResponse() {
     if (convoText.length > 0) {
-        try {
-            await navigator.clipboard.writeText(convoText[convoIndex].response);
+        const val = convoText[convoIndex];
+
+        if (val.image) {
+            fetch(val.url).then((response) => {
+                return response.blob();
+            }).then((blob) => {
+                var item = new ClipboardItem({ "image/png": blob });
+                navigator.clipboard.write([item]);
+            });
+        }
+        else {
+            await navigator.clipboard.writeText(val.response);
             console.log("Copied response to clipboard.");
-        } catch (err) {
-            console.log("Failed to copy: ", err);
-        }   
+        }  
     }
 }
 

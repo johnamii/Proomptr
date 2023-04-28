@@ -45,6 +45,11 @@ At the moment, it's not greatly formatted for large code outputs, at least witho
 * Beyond pressing the buttons, you may press `Enter` to submit your prompt, `Ctrl+o` to toggle the options menu, and `Ctrl+q` to reset the conversation. 
 * When looking at a response in the conversation view, you may press `Ctrl+x` to copy the full response immediately without having to select it.
 
+**Image Generation**
+* There's now functionality to produce simple AI-generated images (although the model in their API is not very good)
+* To use it, type `/draw` before your prompt and then it will return an image within the conversation.
+* Customization will come later. 
+
 ## Customization
 
  * There is now a built-in options menu that lets you customize the following:

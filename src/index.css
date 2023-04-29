@@ -172,6 +172,7 @@ code {
     overflow-y: auto;
     overflow-x: hidden;
     margin: none;
+    flex-direction: column;
 
 }::-webkit-scrollbar {
     width: 4px;
